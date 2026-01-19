@@ -8,7 +8,12 @@ const Login = () => {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD || 'admin123';
+    // Fallback password updated to match user expectation
+    const adminPassword = (import.meta.env.VITE_ADMIN_PASSWORD || 'Youtube@2026').trim();
+    
+    // Debugging: Log the expected password to console
+    console.log('Expected Password:', adminPassword);
+    console.log('Input Password:', password);
 
     if (password === adminPassword) {
       localStorage.setItem('isAdminAuthenticated', 'true');
