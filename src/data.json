@@ -1,0 +1,53 @@
+{
+  "profile": {
+    "name": "FireStick Guide Pro",
+    "avatar": "/avatar.png",
+    "bio": "Unlock the beauty of life.",
+    "socials": [
+      { "platform": "youtube", "url": "https://youtube.com/@yourchannel" },
+      { "platform": "twitter", "url": "https://twitter.com/yourhandle" },
+      { "platform": "mail", "url": "mailto:contact@example.com" }
+    ]
+  },
+  "links": [
+    {
+      "id": "1",
+      "title": "📺 IPTV Free Trial (24h)",
+      "subtitle": "High speed, 4K supported, No buffering",
+      "url": "https://example.com/iptv-trial",
+      "featured": true,
+      "icon": "PlayCircle",
+      "color": "from-purple-600 to-blue-600"
+    },
+    {
+      "id": "2",
+      "title": "🔑 Software License Deals",
+      "subtitle": "Get 50% off on premium software",
+      "url": "https://example.com/software",
+      "featured": true,
+      "icon": "Key",
+      "color": "from-rose-500 to-orange-500"
+    },
+    {
+      "id": "3",
+      "title": "🛡️ Best VPN for Streaming",
+      "url": "https://example.com/vpn",
+      "featured": false,
+      "icon": "Shield"
+    },
+    {
+      "id": "4",
+      "title": "📦 My Gear List",
+      "url": "https://example.com/gear",
+      "featured": false,
+      "icon": "Package"
+    },
+    {
+      "id": "5",
+      "title": "🌐 Official Website",
+      "url": "https://example.com",
+      "featured": false,
+      "icon": "Globe"
+    }
+  ]
+}
