@@ -6,19 +6,19 @@ const Profile = ({ data }) => {
   const avatarLink = data.theme?.avatar_link;
 
   const AvatarContent = () => (
-    <div className={`mb-6 relative p-1 rounded-full bg-gradient-to-tr ${themeGradient} ${avatarLink ? 'hover:scale-105 transition-transform cursor-pointer' : ''}`}>
+    <div className={`mb-3 md:mb-6 relative p-1 rounded-full bg-gradient-to-tr ${themeGradient} ${avatarLink ? 'hover:scale-105 transition-transform cursor-pointer' : ''}`}>
       <div className="bg-background rounded-full p-1">
         <img 
           src={data.avatar_url || data.avatar} 
           alt={data.name}
-          className="w-32 h-32 rounded-full object-cover"
+          className="w-20 h-20 md:w-32 md:h-32 rounded-full object-cover"
         />
       </div>
     </div>
   );
 
   return (
-    <div className="flex flex-col items-center text-center mb-10 pt-10">
+    <div className="flex flex-col items-center text-center mb-6 md:mb-10 pt-4 md:pt-10">
       {avatarLink ? (
         <a href={avatarLink} target="_blank" rel="noopener noreferrer">
           <AvatarContent />
@@ -27,11 +27,11 @@ const Profile = ({ data }) => {
         <AvatarContent />
       )}
       
-      <h1 className="text-4xl font-bold text-white mb-2 tracking-tight drop-shadow-sm">
+      <h1 className="text-2xl md:text-4xl font-bold text-white mb-1 md:mb-2 tracking-tight drop-shadow-sm">
         {localize(data.name)}
       </h1>
       
-      <p className="text-white/90 font-medium text-lg max-w-xs leading-relaxed">
+      <p className="text-white/90 font-medium text-sm md:text-lg max-w-xs leading-relaxed line-clamp-2 md:line-clamp-none">
         {localize(data.bio)}
       </p>
     </div>

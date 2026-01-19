@@ -2,6 +2,8 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import AdminDashboard from './pages/admin/Dashboard';
 import EditProfile from './pages/admin/EditProfile';
+import Login from './pages/admin/Login';
+import ProtectedRoute from './components/ProtectedRoute';
 import PublicProfile from './pages/PublicProfile';
 
 // Admin/System Domains (Domains that serve the landing page or admin panel)
@@ -20,8 +22,20 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/admin/edit/:id" element={<EditProfile />} />
+        <Route path="/login" element={<Login />} />
+        
+        <Route path="/admin" element={
+          <ProtectedRoute>
+            <AdminDashboard />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/admin/edit/:id" element={
+          <ProtectedRoute>
+            <EditProfile />
+          </ProtectedRoute>
+        } />
+
         <Route path="/:slug" element={<PublicProfile />} />
         <Route path="/" element={
           isCustomDomain ? (

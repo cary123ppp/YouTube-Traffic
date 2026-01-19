@@ -257,17 +257,29 @@ const EditProfile = () => {
         sort_order: index // Update sort order based on current array position
       }));
 
-      // Clean up: Remove undefined IDs so Supabase creates new records
-      const cleanedLinks = linksToUpsert.map(link => {
-        if (!link.id) delete link.id;
-        return link;
+      // Split into existing and new links to avoid "id: null" issues in batch upsert
+      const existingLinks = linksToUpsert.filter(l => l.id);
+      const newLinks = linksToUpsert.filter(l => !l.id).map(l => {
+        // Explicitly remove id for new links
+        const { id, ...rest } = l;
+        return rest;
       });
 
-      const { error: linksError } = await supabase
-        .from('links')
-        .upsert(cleanedLinks);
+      // 1. Upsert existing links
+      if (existingLinks.length > 0) {
+        const { error: updateError } = await supabase
+          .from('links')
+          .upsert(existingLinks);
+        if (updateError) throw updateError;
+      }
 
-      if (linksError) throw linksError;
+      // 2. Insert new links
+      if (newLinks.length > 0) {
+        const { error: insertError } = await supabase
+          .from('links')
+          .insert(newLinks);
+        if (insertError) throw insertError;
+      }
 
       alert('Saved successfully!');
       fetchData(); // Refresh data
@@ -378,7 +390,7 @@ const EditProfile = () => {
                   type="text" 
                   value={profile.theme?.avatar_link || ''}
                   onChange={handleAvatarLinkChange}
-                  className="w-full px-3 py-2 bg-gray-50/50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                  className="w-full px-3 py-2 bg-gray-50/50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
                   placeholder="https://youtube.com/@..."
                 />
               </div>
@@ -389,7 +401,7 @@ const EditProfile = () => {
                   type="text" 
                   value={profile.theme?.custom_domain || ''}
                   onChange={handleCustomDomainChange}
-                  className="w-full px-3 py-2 bg-gray-50/50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                  className="w-full px-3 py-2 bg-gray-50/50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
                   placeholder="e.g. firestickguidepro.com"
                 />
                 <p className="text-xs text-gray-400 mt-1 ml-1">
