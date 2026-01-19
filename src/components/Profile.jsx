@@ -18,7 +18,7 @@ const Profile = ({ data }) => {
   );
 
   return (
-    <div className="flex flex-col items-center text-center mb-6 md:mb-10 pt-4 md:pt-10">
+    <div className="flex flex-col items-center text-center mb-6 md:mb-10 pt-4 md:pt-10 h-[25vh] justify-center">
       {avatarLink ? (
         <a href={avatarLink} target="_blank" rel="noopener noreferrer">
           <AvatarContent />
