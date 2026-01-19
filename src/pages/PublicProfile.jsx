@@ -76,6 +76,12 @@ const PublicProfile = ({ domainSlug }) => {
     fetchProfile();
   }, [slug]);
 
+  useEffect(() => {
+    if (profileData?.profile?.name) {
+      document.title = profileData.profile.name;
+    }
+  }, [profileData]);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-900">
