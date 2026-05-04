@@ -22,7 +22,7 @@ const Login = () => {
       const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
       // 获取环境变量
-      const correctHash = import.meta.env.VITE_ADMIN_PASSWORD_HASH;
+      const correctHash = "05ad96890c08dba27350393d4096763cc2cd70c1ff921a6053a1ebd6744815be";
 
       if (hashHex === correctHash) {
         localStorage.setItem('isAuthenticated', 'true');
