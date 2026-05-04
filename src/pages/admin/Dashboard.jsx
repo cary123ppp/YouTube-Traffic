@@ -1,107 +1,96 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
+import { Link, useNavigate } from 'react-router-dom';
+import { clearAdminSession } from '../../lib/adminAuth';
 
-const Dashboard = () => {
-  const navigate = useNavigate();
-  const [links, setLinks] = useState([]);
+const AdminDashboard = () => {
+  const [profiles, setProfiles] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  const handleLogout = () => {
-    localStorage.removeItem('isAuthenticated');
-    navigate('/admin/login', { replace: true });
-  };
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetchLinks();
+    fetchProfiles();
   }, []);
 
-  const fetchLinks = async () => {
-    setLoading(true);
-    setError('');
+  const fetchProfiles = async () => {
     try {
-      // 🎯 核心点：这里只查询并排序，坚决不加 .single()
-      const { data, error: linksError } = await supabase
-        .from('links')
+      const { data, error } = await supabase
+        .from('profiles')
         .select('*')
-        .order('order_index', { ascending: true });
+        .order('created_at', { ascending: false });
 
-      if (linksError) throw linksError;
-      setLinks(data || []);
-    } catch (err) {
-      setError('数据加载失败: ' + err.message);
+      if (error) throw error;
+      setProfiles(data || []);
+    } catch (error) {
+      console.error('Error fetching profiles:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleUpdateUrl = async (id, currentUrl) => {
-    const newUrl = window.prompt('请输入新的引流链接 (如需走CRM随机分流请填 random:你的分组码)', currentUrl);
-    
-    if (newUrl === null || newUrl === currentUrl) return; 
-
-    try {
-      const { error } = await supabase.from('links').update({ url: newUrl }).eq('id', id);
-      if (error) throw error;
-      
-      setLinks(links.map(l => l.id === id ? { ...l, url: newUrl } : l));
-      alert('✅ 链接修改成功！你的前端立马就会生效！');
-    } catch (err) {
-      alert('❌ 修改失败: ' + err.message);
-    }
+  const handleLogout = () => {
+    clearAdminSession();
+    navigate('/login', { replace: true });
   };
 
-  if (loading) {
-    return <div className="min-h-screen flex items-center justify-center text-gray-500 font-bold">正在拉取您的引流链接...</div>;
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
-      <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-md p-6">
-        
-        <div className="flex justify-between items-center mb-8 border-b pb-4">
-          <h1 className="text-2xl font-bold text-gray-800">引流落地页管理后台</h1>
-          <button onClick={handleLogout} className="text-red-500 font-bold hover:text-red-700 transition-colors">
-            退出登录
+    <div className="min-h-screen bg-gray-100 p-8">
+      <div className="max-w-6xl mx-auto">
+        <header className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800"
+          >
+            Logout
           </button>
-        </div>
+        </header>
 
-        {error && <div className="bg-red-50 text-red-600 p-4 rounded mb-6 font-bold">{error}</div>}
-
-        <div className="space-y-4">
-          {links.map(link => (
-            <div key={link.id} className="border border-gray-200 p-4 rounded-lg flex flex-col md:flex-row justify-between items-start md:items-center hover:bg-gray-50 transition-colors">
-              <div className="mb-4 md:mb-0">
-                <div className="font-bold text-lg text-gray-900">
-                  {link.title?.zh || link.title?.en || link.title || '引流按钮'}
+        {loading ? (
+          <div className="text-center py-10">Loading...</div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {profiles.map((profile) => (
+              <div key={profile.id} className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                <div className="flex items-center mb-4">
+                  {profile.avatar_url ? (
+                    <img src={profile.avatar_url} alt={profile.name} className="w-12 h-12 rounded-full object-cover mr-4" />
+                  ) : (
+                    <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold mr-4">
+                      {profile.name.substring(0, 2).toUpperCase()}
+                    </div>
+                  )}
+                  <div className="overflow-hidden">
+                    <h3 className="font-bold text-lg truncate">{profile.name}</h3>
+                    <p className="text-gray-500 text-xs mt-1">
+                      <span className="font-semibold bg-gray-100 px-1.5 py-0.5 rounded border">Slug: {profile.slug}</span>
+                    </p>
+                  </div>
                 </div>
-                <div className="text-sm text-gray-500 mt-1 font-mono break-all">
-                  当前指向: <span className="text-blue-600">{link.url}</span>
+                <div className="flex space-x-2 mt-4">
+                  <Link to={`/admin/edit/${profile.id}`} className="flex-1 bg-gray-100 text-gray-700 py-2 rounded-lg hover:bg-gray-200 font-medium text-center">
+                    Edit
+                  </Link>
+                  <Link to={`/${profile.slug}`} target="_blank" className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 font-medium text-center">
+                    Preview
+                  </Link>
                 </div>
               </div>
-              
-              <div className="flex items-center gap-3 w-full md:w-auto justify-end">
-                <span className={`px-3 py-1 rounded-full text-xs font-bold ${link.active ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'}`}>
-                  {link.active ? '展示中' : '已隐藏'}
-                </span>
-                <button 
-                  onClick={() => handleUpdateUrl(link.id, link.url)}
-                  className="bg-black text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
-                >
-                  修改引流链接
-                </button>
-              </div>
-            </div>
-          ))}
-          {links.length === 0 && !error && (
-            <div className="text-center text-gray-400 py-8">目前还没有任何跳转按钮</div>
-          )}
-        </div>
+            ))}
 
+            {/* New Profile Button */}
+            <button className="flex flex-col items-center justify-center bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl p-6 hover:bg-white hover:border-blue-500 transition-colors group h-full min-h-[160px]">
+              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm mb-3 group-hover:scale-110 transition-transform">
+                <span className="text-2xl text-gray-400 group-hover:text-blue-500">+</span>
+              </div>
+              <span className="text-gray-500 font-medium group-hover:text-blue-500">Add New Influencer</span>
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
-export default Dashboard;
+export default AdminDashboard;
