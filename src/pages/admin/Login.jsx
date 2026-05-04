@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false); 
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -12,17 +13,15 @@ const Login = () => {
     setError('');
 
     try {
-      // 1. 使用浏览器原生 Web Crypto API 对输入的密码进行 SHA-256 加密
       const msgBuffer = new TextEncoder().encode(password);
       const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
       const hashArray = Array.from(new Uint8Array(hashBuffer));
       const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
-      // 2. 与环境变量中存储的哈希值进行比对
       const correctHash = import.meta.env.VITE_ADMIN_PASSWORD_HASH;
 
       if (hashHex === correctHash) {
-        // 密码正确，存入本地标识并放行
+
         localStorage.setItem('isAuthenticated', 'true');
         navigate('/admin');
       } else {
@@ -61,9 +60,12 @@ const Login = () => {
           
           <button
             type="submit"
-            className="w-full bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors"
+            disabled={isLoading}
+            className={`w-full py-3 rounded-lg font-medium transition-colors ${
+              isLoading ? 'bg-gray-400 text-gray-200 cursor-not-allowed' : 'bg-black text-white hover:bg-gray-800'
+            }`}
           >
-            Login
+            {isLoading ? 'Logging in...' : 'Login'}
           </button>
         </form>
       </div>
