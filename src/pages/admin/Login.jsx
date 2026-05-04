@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false); // 修复：必须定义状态
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -15,24 +15,23 @@ const Login = () => {
     setError('');
 
     try {
-      // 1. 生成输入密码的 SHA-256 Hash
+      // 使用浏览器原生的 window.crypto，千万不要在文件顶部 import crypto!
       const msgBuffer = new TextEncoder().encode(password);
-      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+      const hashBuffer = await window.crypto.subtle.digest('SHA-256', msgBuffer);
       const hashArray = Array.from(new Uint8Array(hashBuffer));
       const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
-      // 2. 获取环境变量中的 Hash
+      // 获取环境变量
       const correctHash = import.meta.env.VITE_ADMIN_PASSWORD_HASH;
 
       if (hashHex === correctHash) {
         localStorage.setItem('isAuthenticated', 'true');
-        // 使用 replace 防止用户点“返回”又回到登录页
         navigate('/admin', { replace: true });
       } else {
-        setError('密码不正确');
+        setError('密码错误，请重试');
       }
     } catch (err) {
-      setError('加密校验失败，请更换浏览器');
+      setError('系统错误，请检查控制台');
       console.error(err);
     } finally {
       setIsLoading(false);
@@ -52,7 +51,6 @@ const Login = () => {
               autoFocus
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              // 修复：显式设置 text-black 和 bg-white，确保文字可见
               className="w-full px-4 py-3 bg-white text-black border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
               placeholder="请输入密码..."
             />
