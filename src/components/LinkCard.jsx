@@ -24,7 +24,7 @@ const LinkCard = ({ link }) => {
       try {
         // 请求我们刚才写的 CRM 接口
         const apiUrl = import.meta.env.VITE_CRM_API_URL || '';
-        const response = await fetch(`${apiUrl}/api/random-link/get-url?groupCode=${groupCode}`);
+        const response = await fetch(`${apiUrl}/customer/random-link/get-url?groupCode=${groupCode}`);
         const result = await response.json();
         
         if (result.success && result.data && result.data.targetUrl) {
