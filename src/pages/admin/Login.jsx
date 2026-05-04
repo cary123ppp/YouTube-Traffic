@@ -6,20 +6,33 @@ const Login = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Fallback password updated to match user expectation
-    const adminPassword = (import.meta.env.VITE_ADMIN_PASSWORD || 'Youtube@2026').trim();
-    
-    // Debugging: Log the expected password to console
-    console.log('Expected Password:', adminPassword);
-    console.log('Input Password:', password);
+    setIsLoading(true);
+    setError('');
 
-    if (password === adminPassword) {
-      localStorage.setItem('isAdminAuthenticated', 'true');
-      navigate('/admin');
-    } else {
-      setError('Invalid password');
+    try {
+      // 1. 使用浏览器原生 Web Crypto API 对输入的密码进行 SHA-256 加密
+      const msgBuffer = new TextEncoder().encode(password);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+      // 2. 与环境变量中存储的哈希值进行比对
+      const correctHash = import.meta.env.VITE_ADMIN_PASSWORD_HASH;
+
+      if (hashHex === correctHash) {
+        // 密码正确，存入本地标识并放行
+        localStorage.setItem('isAuthenticated', 'true');
+        navigate('/admin');
+      } else {
+        setError('密码错误，请重试');
+      }
+    } catch (err) {
+      setError('加密验证失败，请检查浏览器兼容性');
+      console.error(err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
